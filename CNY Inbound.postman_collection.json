@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "1e105cf4-ad42-4adc-bdc3-a9a82c142079",
+		"name": "CNY Inbound",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1.1 Obtain access token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "47710739-d000-47de-9db2-2f7a0a680c75",
+						"exec": [
+							"",
+							"postman.setEnvironmentVariable(\"jwt_token\", JSON.parse(responseBody).token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "x-client-id",
+						"value": "{{clientId}}"
+					},
+					{
+						"key": "x-api-key",
+						"value": "{{apiKey}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/v1/authentication/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"authentication",
+						"login"
+					]
+				},
+				"description": "**POST /api/v1/authentication/login **"
+			},
+			"response": []
+		},
+		{
+			"name": "2.1 Create P2P Payment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "27fe3cdd-9607-41d6-9ae4-4f11c0c42c93",
+						"exec": [
+							"postman.setEnvironmentVariable(\"payment_id\", JSON.parse(responseBody).payment_id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-on-behalf-of",
+						"value": "{{subaccount_id}}",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwt_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"beneficiary\": { \r\n        \"additional_info\": {\r\n            \"personal_id_number\": \"370303199211111111\", \r\n            \"personal_id_type\": \"CHINESE_NATIONAL_ID\",\r\n            \"personal_mobile_number\": \"18701712339\",\r\n            \"personal_first_name_in_chinese\": \"小明\",\r\n            \"personal_last_name_in_chinese\": \"李\"\r\n        },\r\n        \"address\": { \r\n            \"city\": \"Shanghai\", \r\n            \"country_code\": \"CN\",\r\n            \"postcode\": \"200435\",\r\n            \"state\": \"Shanghai\", \r\n            \"street_address\": \"No.168, Street Uname\" \r\n        },\r\n        \"bank_details\": {\r\n            \"account_currency\": \"USD\", \r\n            \"account_name\": \"李小明\", \r\n            \"account_number\": \"6225880173511111\",\r\n            \"bank_country_code\": \"CN\",\r\n            \"bank_name\": \"CHMB\", \r\n            \"binding_mobile_number\": \"18701712339\"\r\n        },\r\n        \"first_name\": \"小明\",\r\n        \"last_name\": \"李\",\r\n        \"date_of_birth\": \"1988-08-08\",\r\n        \"entity_type\": \"PERSONAL\" \r\n    },\r\n    \"payer\": { \r\n        \"additional_info\": {\r\n            \"external_id\": \"1234567890\" \r\n        },\r\n        \"address\": { \r\n            \"city\": \"HongKong\",\r\n            \"country_code\": \"HK\",\r\n            \"street_address\": \"15 Williams Street\" \r\n        },\r\n        \"date_of_birth\": \"1988-08-08\",\r\n        \"first_name\": \"小明\",\r\n        \"last_name\": \"李\",\r\n        \"entity_type\": \"PERSONAL\" \r\n    },\r\n    \"payment_currency\": \"USD\", \r\n    \"payment_amount\": \"100.00\", \r\n    \"source_currency\": \"USD\", \r\n    \"payment_method\": \"LOCAL\",\r\n    \"reason\": \"transfer_to_own_account\", \r\n    \"reference\": \"salary\",\r\n    \"request_id\": \"{{$guid}}\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/v1/payments/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"create"
+					]
+				},
+				"description": "**POST /v2/payments/create**\nCreates a new payment and returns a hash containing the details of the created payment.\n\n\n**Required Fields**\n\ncurrency:3 character ISO 4217 currency code\n\nbeneficiary\\_id:Unique ID of beneficiary\n\namount:Amount of Payment to 2dp\n\nreason:Reason for payment\n\nreference:Reference\n\n**Optional Fields**\n\nPayment\\_date:ISO 8601 Date when the payment should be paid\n\nPayment\\_type:Can be priority or regular\n\nconversion\\_id:Conversion unique ID\n\npayer\\_entity\\_type:Type of payer - can be individual or company\n\npayer\\_company\\_name:Payer company name\n\npayer\\_first\\_name:Payer first name\n\npayer\\_last\\_name:Payer second name\n\npayer\\_city:Payer city\n\npayer\\_postcode:Payer postcode\n\npayer\\_state\\_or\\_province:Payer state or province\n\npayer\\_date\\_of\\_birth:Payer date of birth(company creation date when payer\\_entity\\_type is company)\n\nidentification\\_type: name of ID type\n\nidentification\\_value: ID value\n\non\\_behalf\\_of: contact ID\n\n**Response**\n\nid:Payment unique ID\n\npayer\\_id:Unique payer ID\n\namount:Amount of Payment to 2dp\n\nbeneficiary\\_id  :ID of the beneficiary\n\ncurrency:3 character ISO 4217 currency code\n\nconversion\\_id:Conversion unique ID\n\nreference:Reference\n\npayment\\_type:Can be standard or local\n\npayment\\_date:ISO 8601 Date when the payment should be paid\n\nreason:Reason for payment\n\nstatus:Status of the payment\n\ntransferred\\_at:ISO 8601 Date when the Payment was sent\n\nauthorisation\\_steps\\_required:Number of authorisation steps required\n\ncreator\\_contact\\_id:ID of the contact\n\nlast\\_updater\\_contact\\_id:ID of the contact\n\nshort\\_reference:transfer ID of the payment\n\nfailure\\_reason:Reason for the failure\n\ncreated\\_at:Datetime of when the Payment was created\n\nupdated\\_at:Datetime of when the Payment was last updated\n\n"
+			},
+			"response": []
+		},
+		{
+			"name": "2.2 Create CNY Inbound Payment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9d3f2fb-97e4-480e-9001-416c2634dd82",
+						"exec": [
+							"postman.setEnvironmentVariable(\"payment_id\", JSON.parse(responseBody).payment_id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-on-behalf-of",
+						"value": "{{subaccount_id}}",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{jwt_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"beneficiary\": {\r\n        \"additional_info\": {\r\n            \"personal_email\": \"john.walker@gmail.com\",\r\n            \"personal_id_number\": \"362123197511301514\",\r\n            \"personal_id_type\": \"CHINESE_NATIONAL_ID\",\r\n            \"personal_mobile_number\": \"13068870044\"\r\n        },\r\n        \"address\": {\r\n            \"city\": \"Shenzhen\",\r\n            \"country_code\": \"CN\",\r\n            \"postcode\": \"518001\",\r\n            \"state\": \"Guangdong\"\r\n        },\r\n        \"bank_details\": {\r\n            \"account_currency\": \"CNY\",\r\n            \"account_name\": \"刘大明\",\r\n            \"account_number\": \"44250100003700000259\",\r\n            \"account_routing_type1\": \"cnaps\",\r\n            \"account_routing_value1\": \"105584000005\",\r\n            \"bank_country_code\": \"CN\",\r\n            \"bank_name\": \"China Construction Bank Corporation\"\r\n        },\r\n        \"date_of_birth\": \"1976-08-26\",\r\n        \"entity_type\": \"PERSONAL\",\r\n        \"first_name\": \"Da Ming\",\r\n        \"last_name\": \"Liu\"\r\n    },\r\n    \"payer\": {\r\n        \"additional_info\": {\r\n            \"business_registration_number\": \"EU300503\", \r\n            \"personal_email\": \"james.smith@google.com\" \r\n        },\r\n        \"address\": {\r\n            \"city\": \"Melbourne\",\r\n            \"country_code\": \"CN\",\r\n            \"postcode\": \"3000\",\r\n            \"state\": \"VIC\",\r\n            \"street_address\": \"15 William Street\" \r\n        },\r\n        \"company_name\": \"Complete Concrete Pty Ltd\", \r\n        \"entity_type\": \"COMPANY\"\r\n    },\r\n    \"payment_amount\": 100,\r\n    \"payment_currency\": \"CNY\",\r\n    \"payment_method\": \"LOCAL\",\r\n    \"reason\": \"goods_trade_online\",\r\n    \"reference\": \"PMT1936398\",\r\n    \"request_id\": \"{{$guid}}\",\r\n    \"source_currency\": \"USD\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/v1/payments/create",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"create"
+					]
+				},
+				"description": "**POST /v2/payments/create**\nCreates a new payment and returns a hash containing the details of the created payment.\n\n\n**Required Fields**\n\ncurrency:3 character ISO 4217 currency code\n\nbeneficiary\\_id:Unique ID of beneficiary\n\namount:Amount of Payment to 2dp\n\nreason:Reason for payment\n\nreference:Reference\n\n**Optional Fields**\n\nPayment\\_date:ISO 8601 Date when the payment should be paid\n\nPayment\\_type:Can be priority or regular\n\nconversion\\_id:Conversion unique ID\n\npayer\\_entity\\_type:Type of payer - can be individual or company\n\npayer\\_company\\_name:Payer company name\n\npayer\\_first\\_name:Payer first name\n\npayer\\_last\\_name:Payer second name\n\npayer\\_city:Payer city\n\npayer\\_postcode:Payer postcode\n\npayer\\_state\\_or\\_province:Payer state or province\n\npayer\\_date\\_of\\_birth:Payer date of birth(company creation date when payer\\_entity\\_type is company)\n\nidentification\\_type: name of ID type\n\nidentification\\_value: ID value\n\non\\_behalf\\_of: contact ID\n\n**Response**\n\nid:Payment unique ID\n\npayer\\_id:Unique payer ID\n\namount:Amount of Payment to 2dp\n\nbeneficiary\\_id  :ID of the beneficiary\n\ncurrency:3 character ISO 4217 currency code\n\nconversion\\_id:Conversion unique ID\n\nreference:Reference\n\npayment\\_type:Can be standard or local\n\npayment\\_date:ISO 8601 Date when the payment should be paid\n\nreason:Reason for payment\n\nstatus:Status of the payment\n\ntransferred\\_at:ISO 8601 Date when the Payment was sent\n\nauthorisation\\_steps\\_required:Number of authorisation steps required\n\ncreator\\_contact\\_id:ID of the contact\n\nlast\\_updater\\_contact\\_id:ID of the contact\n\nshort\\_reference:transfer ID of the payment\n\nfailure\\_reason:Reason for the failure\n\ncreated\\_at:Datetime of when the Payment was created\n\nupdated\\_at:Datetime of when the Payment was last updated\n\n"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
